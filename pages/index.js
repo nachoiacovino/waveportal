@@ -4,11 +4,12 @@ import { useEffect, useState } from 'react';
 
 import wavePortal from '../utils/WavePortal.json';
 
-const contractAddress = "0x8C8b6a1152F75541393E7a77ecA10824550C38A2";
+const contractAddress = "0xa27c6bcdE368b47b1Cb145527F71e5d4720FE3Eb";
 
 export default function Home() {
   const [currentAccount, setCurrentAccount] = useState("");
   const [allWaves, setAllWaves] = useState([]);
+  const [message, setMessage] = useState("");
 
   const contractABI = wavePortal.abi;
 
@@ -76,7 +77,7 @@ export default function Home() {
         /*
         * Execute the actual wave from your smart contract
         */
-        const waveTxn = await wavePortalContract.wave("test wave 2!");
+        const waveTxn = await wavePortalContract.wave(message, { gasLimit: 300000 });
         console.log("Mining...", waveTxn.hash);
 
         await waveTxn.wait();
@@ -158,8 +159,15 @@ export default function Home() {
         {!currentAccount && <button className="w-32 p-2 mx-auto mt-4 border-2 border-gray-500 rounded-md" onClick={connectWallet}>
           Connect Wallet
         </button>}
-        <button className="w-32 p-2 mx-auto mt-4 border-2 border-gray-500 rounded-md" onClick={wave}>
-          Wave at Me
+        <input
+          type="text"
+          name="text"
+          id="text"
+          onChange={e => setMessage(e.target.value)}
+          className="block px-4 py-2 mx-auto mt-4 border-2 border-gray-300 rounded-md shadow-sm w-52 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+        />
+        <button className="p-2 mx-auto mt-4 border-2 border-gray-500 rounded-md w-52" onClick={wave}>
+          Post a message!
         </button>
 
         {[...allWaves].reverse().map(({ address, timestamp, message }) => <div key={message + timestamp} className="p-2 mt-4">
