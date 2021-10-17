@@ -162,7 +162,7 @@ export default function Home() {
           Wave at Me
         </button>
 
-        {allWaves.map(({ address, timestamp, message }) => <div key={message + timestamp} className="p-2 mt-4">
+        {[...allWaves].reverse().map(({ address, timestamp, message }) => <div key={message + timestamp} className="p-2 mt-4">
           <div>Address: {address}</div>
           <div>Time: {timestamp.toString()}</div>
           <div>Message: {message}</div>
