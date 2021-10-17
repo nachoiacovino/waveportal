@@ -8,7 +8,7 @@ export default function Home() {
   return (
     <div className="flex justify-center mt-16 w-100">
       <Head>
-        <title>Create Next App</title>
+        <title>WavePortal</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
