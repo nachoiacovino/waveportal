@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 import wavePortal from '../utils/WavePortal.json';
 
-const contractAddress = "0xa27c6bcdE368b47b1Cb145527F71e5d4720FE3Eb";
+const contractAddress = "0xff94289e222E16D6a53371Efc59A13b6D5313770";
 
 export default function Home() {
   const [currentAccount, setCurrentAccount] = useState("");
@@ -85,7 +85,6 @@ export default function Home() {
 
         count = await wavePortalContract.getTotalWaves();
         console.log("Retrieved total wave count...", count.toNumber());
-        getAllWaves();
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -98,23 +97,16 @@ export default function Home() {
  * Create a method that gets all waves from your contract
  */
   const getAllWaves = async () => {
+    const { ethereum } = window;
+
     try {
-      const { ethereum } = window;
-      if (ethereum) {
+      if (window.ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum);
         const signer = provider.getSigner();
         const wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
 
-        /*
-         * Call the getAllWaves method from your Smart Contract
-         */
         const waves = await wavePortalContract.getAllWaves();
 
-
-        /*
-         * We only need address, timestamp, and message in our UI so let's
-         * pick those out
-         */
         let wavesCleaned = [];
         waves.forEach(wave => {
           wavesCleaned.push({
@@ -124,10 +116,20 @@ export default function Home() {
           });
         });
 
-        /*
-         * Store our data in React State
-         */
         setAllWaves(wavesCleaned);
+
+        /**
+         * Listen in for emitter events!
+         */
+        wavePortalContract.on("NewWave", (address, timestamp, message) => {
+          console.log("NewWave", address, timestamp, message);
+
+          setAllWaves(prevState => [...prevState, {
+            address,
+            timestamp: new Date(timestamp * 1000),
+            message: message
+          }]);
+        });
       } else {
         console.log("Ethereum object doesn't exist!");
       }
