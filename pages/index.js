@@ -158,19 +158,21 @@ export default function Home() {
           I am Nacho, this is pretty cool! Connect your Ethereum wallet and wave at me!
         </div>
 
-        {!currentAccount && <button className="w-32 p-2 mx-auto mt-4 border-2 border-gray-500 rounded-md" onClick={connectWallet}>
+        {!currentAccount ? <button className="w-32 p-2 mx-auto mt-4 border-2 border-gray-500 rounded-md" onClick={connectWallet}>
           Connect Wallet
-        </button>}
-        <input
-          type="text"
-          name="text"
-          id="text"
-          onChange={e => setMessage(e.target.value)}
-          className="block px-4 py-2 mx-auto mt-4 border-2 border-gray-300 rounded-md shadow-sm w-52 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-        />
-        <button className="p-2 mx-auto mt-4 border-2 border-gray-500 rounded-md w-52" onClick={wave}>
-          Post a message!
-        </button>
+        </button> : <>
+          <input
+            type="text"
+            name="text"
+            id="text"
+            onChange={e => setMessage(e.target.value)}
+            className="block px-4 py-2 mx-auto mt-4 border-2 border-gray-300 rounded-md shadow-sm w-52 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          />
+          <button className="p-2 mx-auto mt-4 border-2 border-gray-500 rounded-md w-52" onClick={wave}>
+            Post a message!
+          </button>
+        </>
+        }
 
         {[...allWaves].reverse().map(({ address, timestamp, message }) => <div key={message + timestamp} className="p-2 mt-4">
           <div>Address: {address}</div>
