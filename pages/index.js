@@ -4,40 +4,54 @@ import { useEffect, useState } from 'react';
 export default function Home() {
   const [currentAccount, setCurrentAccount] = useState("");
 
-  const checkIfWalletIsConnected = async () => {
+  useEffect(() => {
+    const checkIfWalletIsConnected = async () => {
+      try {
+        const { ethereum } = window;
+
+        if (!ethereum) {
+          console.log("Make sure you have metamask!");
+          return;
+        } else {
+          console.log("We have the ethereum object", ethereum);
+        }
+
+        /*
+        * Check if we're authorized to access the user's wallet
+        */
+        const accounts = await ethereum.request({ method: 'eth_accounts' });
+
+        if (accounts.length !== 0) {
+          const account = accounts[0];
+          console.log("Found an authorized account:", account);
+          setCurrentAccount(account);
+        } else {
+          console.log("No authorized account found");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    checkIfWalletIsConnected();
+  }, []);
+
+  const connectWallet = async () => {
     try {
       const { ethereum } = window;
 
       if (!ethereum) {
-        console.log("Make sure you have metamask!");
+        alert("Get MetaMask!");
         return;
-      } else {
-        console.log("We have the ethereum object", ethereum);
       }
 
-      /*
-      * Check if we're authorized to access the user's wallet
-      */
-      const accounts = await ethereum.request({ method: 'eth_accounts' });
+      const accounts = await ethereum.request({ method: "eth_requestAccounts" });
 
-      if (accounts.length !== 0) {
-        const account = accounts[0];
-        console.log("Found an authorized account:", account);
-        setCurrentAccount(account);
-      } else {
-        console.log("No authorized account found");
-      }
+      console.log("Connected", accounts[0]);
+      setCurrentAccount(accounts[0]);
     } catch (error) {
       console.log(error);
     }
   };
-
-  /*
-* This runs our function when the page loads.
-*/
-  useEffect(() => {
-    checkIfWalletIsConnected();
-  }, []);
 
   const wave = () => {
 
@@ -59,9 +73,9 @@ export default function Home() {
           I am Nacho, this is pretty cool! Connect your Ethereum wallet and wave at me!
         </div>
 
-        <button className="w-32 p-2 mx-auto mt-4 border-2 border-gray-500 rounded-md" onClick={wave}>
+        {!currentAccount && <button className="w-32 p-2 mx-auto mt-4 border-2 border-gray-500 rounded-md" onClick={connectWallet}>
           Wave at Me
-        </button>
+        </button>}
       </main>
     </div>
   );
