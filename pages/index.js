@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 import wavePortal from '../utils/WavePortal.json';
 
-const contractAddress = "0xfB05F9a5E2e57249E1f6a5830fa00Ba7994D87A8";
+const contractAddress = "0x8C8b6a1152F75541393E7a77ecA10824550C38A2";
 
 export default function Home() {
   const [currentAccount, setCurrentAccount] = useState("");
