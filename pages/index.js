@@ -1,8 +1,14 @@
+import { ethers } from 'ethers';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 
+import wavePortal from '../utils/WavePortal.json';
+
+const contractAddress = "0x4aAef521Af5b192d56229C9853CB02Bc110D4349";
+
 export default function Home() {
   const [currentAccount, setCurrentAccount] = useState("");
+  const contractABI = wavePortal.abi;
 
   useEffect(() => {
     const checkIfWalletIsConnected = async () => {
@@ -53,8 +59,23 @@ export default function Home() {
     }
   };
 
-  const wave = () => {
+  const wave = async () => {
+    try {
+      const { ethereum } = window;
 
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        let count = await wavePortalContract.getTotalWaves();
+        console.log("Retrieved total wave count...", count.toNumber());
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -74,8 +95,11 @@ export default function Home() {
         </div>
 
         {!currentAccount && <button className="w-32 p-2 mx-auto mt-4 border-2 border-gray-500 rounded-md" onClick={connectWallet}>
-          Wave at Me
+          Connect Wallet
         </button>}
+        <button className="w-32 p-2 mx-auto mt-4 border-2 border-gray-500 rounded-md" onClick={wave}>
+          Wave at Me
+        </button>
       </main>
     </div>
   );
