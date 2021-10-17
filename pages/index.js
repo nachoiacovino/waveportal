@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 
 import wavePortal from '../utils/WavePortal.json';
 
-const contractAddress = "0x4aAef521Af5b192d56229C9853CB02Bc110D4349";
+const contractAddress = "0xfB05F9a5E2e57249E1f6a5830fa00Ba7994D87A8";
 
 export default function Home() {
   const [currentAccount, setCurrentAccount] = useState("");
+  const [allWaves, setAllWaves] = useState([]);
+
   const contractABI = wavePortal.abi;
 
   useEffect(() => {
@@ -74,7 +76,7 @@ export default function Home() {
         /*
         * Execute the actual wave from your smart contract
         */
-        const waveTxn = await wavePortalContract.wave();
+        const waveTxn = await wavePortalContract.wave("test wave 2!");
         console.log("Mining...", waveTxn.hash);
 
         await waveTxn.wait();
@@ -82,6 +84,7 @@ export default function Home() {
 
         count = await wavePortalContract.getTotalWaves();
         console.log("Retrieved total wave count...", count.toNumber());
+        getAllWaves();
       } else {
         console.log("Ethereum object doesn't exist!");
       }
@@ -89,6 +92,52 @@ export default function Home() {
       console.log(error);
     }
   };
+
+  /*
+ * Create a method that gets all waves from your contract
+ */
+  const getAllWaves = async () => {
+    try {
+      const { ethereum } = window;
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const wavePortalContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        /*
+         * Call the getAllWaves method from your Smart Contract
+         */
+        const waves = await wavePortalContract.getAllWaves();
+
+
+        /*
+         * We only need address, timestamp, and message in our UI so let's
+         * pick those out
+         */
+        let wavesCleaned = [];
+        waves.forEach(wave => {
+          wavesCleaned.push({
+            address: wave.waver,
+            timestamp: new Date(wave.timestamp * 1000),
+            message: wave.message
+          });
+        });
+
+        /*
+         * Store our data in React State
+         */
+        setAllWaves(wavesCleaned);
+      } else {
+        console.log("Ethereum object doesn't exist!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    if (currentAccount) getAllWaves();
+  }, [currentAccount]);
 
   return (
     <div className="flex justify-center mt-16 w-100">
@@ -112,6 +161,12 @@ export default function Home() {
         <button className="w-32 p-2 mx-auto mt-4 border-2 border-gray-500 rounded-md" onClick={wave}>
           Wave at Me
         </button>
+
+        {allWaves.map(({ address, timestamp, message }) => <div key={message + timestamp} className="p-2 mt-4">
+          <div>Address: {address}</div>
+          <div>Time: {timestamp.toString()}</div>
+          <div>Message: {message}</div>
+        </div>)}
       </main>
     </div>
   );
